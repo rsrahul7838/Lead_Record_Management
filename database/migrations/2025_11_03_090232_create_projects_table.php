@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('owner_id'); // user who created/owns
-            $table->enum('status', ['active', 'paused', 'completed'])->default('active');
+            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
+            $table->enum('status', ['Pending', 'Active', 'Completed'])->default('Pending');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }
