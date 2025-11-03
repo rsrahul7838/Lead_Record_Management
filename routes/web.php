@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\LeadController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -35,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::resource('leads', LeadController::class);
+});
 
 
 require __DIR__.'/auth.php';

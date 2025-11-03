@@ -11,14 +11,12 @@ class ProjectController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        // Automatically apply ProjectPolicy to resource methods
-        $this->authorizeResource(Project::class, 'project');
+        $this->authorizeResource(Project::class, 'project'); // automatically authorize
     }
 
     public function index()
     {
         $projects = Project::with('owner')->latest()->get();
-
         return Inertia::render('Projects/Index', [
             'projects' => $projects,
         ]);
@@ -34,9 +32,9 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:Pending,Active,Completed',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
+            'status' => 'required|string',
         ]);
 
         $validated['owner_id'] = auth()->id();
@@ -48,9 +46,7 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        return Inertia::render('Projects/Edit', [
-            'project' => $project,
-        ]);
+        return Inertia::render('Projects/Edit', ['project' => $project]);
     }
 
     public function update(Request $request, Project $project)
@@ -58,9 +54,9 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:Pending,Active,Completed',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
+            'status' => 'required|string',
         ]);
 
         $project->update($validated);

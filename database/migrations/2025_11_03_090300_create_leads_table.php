@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->text('details')->nullable();
-            $table->unsignedBigInteger('project_id')->nullable();
-            $table->enum('stage', ['new', 'contacted', 'qualified', 'lost', 'won'])->default('new');
-            $table->unsignedBigInteger('created_by');
+            $table->foreignId('project_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('set null');
+            $table->enum('status', ['New', 'Contacted', 'Converted', 'Lost'])->default('New');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
