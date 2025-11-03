@@ -2,26 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
 use App\Models\Project;
 use App\Models\Lead;
-use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // You can replace with real data later
-        $totalProjects = Project::count();
-        $totalLeads = Lead::count();
-        $activeProjects = Project::where('status', 'active')->count();
+        // $this->middleware('auth');
 
-        return Inertia::render('Dashboard', [
+        // ✅ Fetch Stats
+        $projectCount = Project::count();
+        $leadCount = Lead::count();
+
+        // ✅ Lead status summary
+        $leadStatusSummary = Lead::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        // ✅ Recent Projects
+        $recentProjects = Project::latest()->take(5)->get(['id', 'name', 'status', 'created_at']);
+
+        // ✅ Recent Leads
+        $recentLeads = Lead::latest()->take(5)->get(['id', 'name', 'email', 'status', 'created_at']);
+
+        return Inertia::render('Dashboard/Index', [
             'stats' => [
-                'totalProjects' => $totalProjects,
-                'activeProjects' => $activeProjects,
-                'totalLeads' => $totalLeads,
-            ]
+                'projects' => $projectCount,
+                'leads' => $leadCount,
+            ],
+            'leadStatusSummary' => $leadStatusSummary,
+            'recentProjects' => $recentProjects,
+            'recentLeads' => $recentLeads,
         ]);
     }
 }
