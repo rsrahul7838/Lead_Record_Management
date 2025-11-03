@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -41,6 +42,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
+    Route::resource('users', UserController::class);
+});
 
 
 require __DIR__.'/auth.php';
