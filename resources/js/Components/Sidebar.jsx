@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Home, Folder, Users, Settings } from 'lucide-react';
+import { Home, Folder, Users, Settings, User } from 'lucide-react';
 
 export default function Sidebar({ auth }) {
   const { url } = usePage();
@@ -10,6 +10,8 @@ export default function Sidebar({ auth }) {
     { label: 'Projects', href: '/projects', icon: <Folder size={16} /> },
     { label: 'Leads', href: '/leads', icon: <Users size={16} /> },
     { label: 'Settings', href: '/settings', icon: <Settings size={16} /> },
+    { label: 'User Management', href: '/user_management', icon: <User size={16} />},
+
   ];
 
   return (
@@ -32,6 +34,7 @@ export default function Sidebar({ auth }) {
           </Link>
         ))}
       </nav>
+      
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="text-sm text-gray-600 dark:text-gray-300">Signed in as</div>
