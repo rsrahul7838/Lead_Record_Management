@@ -11,15 +11,33 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
     {
-        $users = User::with('roles')->get();
-        $roles = Role::all();
-        return Inertia::render('Admin/Users/Index', [
+        $query = User::with('roles');
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->role) {
+            $query->whereHas('roles', function ($q) use ($request) {
+                $q->where('name', $request->role);
+            });
+        }
+
+        $users = $query->get();
+
+        return inertia('Admin/Users/Index', [
             'users' => $users,
-            'roles' => $roles,
+            'roles' => Role::all(),
+            'filters' => $request->only(['search', 'role']),
         ]);
     }
+
 
     public function create()
     {

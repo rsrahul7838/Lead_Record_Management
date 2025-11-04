@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Index() {
   const { leads = [], flash = {} } = usePage().props;
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
 
   const handleDelete = (id) => {
     if (confirm('Are you sure you want to delete this lead?')) {
       router.delete(`/leads/${id}`);
     }
   };
+
+  // Filtered data based on search & status
+  const filteredLeads = leads.filter((lead) => {
+    const matchesSearch =
+      lead.name.toLowerCase().includes(search.toLowerCase()) ||
+      (lead.email && lead.email.toLowerCase().includes(search.toLowerCase()));
+    const matchesStatus = statusFilter === 'All' || lead.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <AuthenticatedLayout>
@@ -32,6 +43,33 @@ export default function Index() {
           </div>
         )}
 
+        {/* Search + Filter Bar */}
+        <div className="bg-white p-4 mb-5 rounded-lg shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-2/3">
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-1/3">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            >
+              <option value="All">All Statuses</option>
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Qualified">Qualified</option>
+              <option value="Lost">Lost</option>
+            </select>
+          </div>
+        </div>
+
         {/* Leads Table */}
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <table className="w-full border-collapse">
@@ -45,8 +83,8 @@ export default function Index() {
               </tr>
             </thead>
             <tbody>
-              {leads.length > 0 ? (
-                leads.map((lead, index) => (
+              {filteredLeads.length > 0 ? (
+                filteredLeads.map((lead, index) => (
                   <tr
                     key={lead.id}
                     className={`border-t hover:bg-gray-50 transition-colors duration-150 ${
