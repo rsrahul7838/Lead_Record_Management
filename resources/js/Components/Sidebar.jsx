@@ -7,8 +7,8 @@ export default function Sidebar({ auth }) {
 
   const menu = [
     { label: 'Dashboard', href: '/dashboard', icon: <Home size={16} /> },
-    { label: 'Projects', href: '/projects', icon: <Folder size={16} /> },
-    { label: 'Leads', href: '/leads', icon: <Users size={16} /> },
+    { label: 'Projects', href: route('projects.index'), icon: <Folder size={16} /> },
+    { label: 'Leads', href: route('leads.index'), icon: <Users size={16} /> },
     { label: 'Settings', href: '/settings', icon: <Settings size={16} /> },
     { label: 'User Management', href: route('users.index'), icon: <User size={16} /> },
 

@@ -8,17 +8,15 @@ use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->authorizeResource(Project::class, 'project'); // automatically authorize
-    }
-
     public function index()
     {
         $projects = Project::with('owner')->latest()->get();
         return Inertia::render('Projects/Index', [
             'projects' => $projects,
+             'flash' => [
+            'success' => session('success'),
+            'error' => session('error'),
+        ],
         ]);
     }
 
