@@ -22,6 +22,15 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -31,7 +40,6 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-      // Only Admin or Project Manager
     Route::middleware(['role:Admin|Project Manager'])->group(function () {
         Route::resource('projects', ProjectController::class);
     });
@@ -41,10 +49,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('leads', LeadController::class);
 });
 
-
-Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
-    Route::resource('users', UserController::class);
-});
 
 
 require __DIR__.'/auth.php';

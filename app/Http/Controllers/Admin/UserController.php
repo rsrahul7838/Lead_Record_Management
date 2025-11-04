@@ -4,18 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $users = User::with('roles')->paginate(10);
-
+        $users = User::with('roles')->get();
+        $roles = Role::all();
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
+            'roles' => $roles,
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Admin/Users/Create', [
             'roles' => Role::all(),
         ]);
     }
@@ -23,40 +31,53 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'role' => 'required',
+            'password' => 'required|confirmed|min:6',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole($request->role);
+        $user->roles()->sync([$request->role_id]);
 
-        return redirect()->back()->with('success', 'User created successfully.');
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
+    }
+
+    public function edit(User $user)
+    {
+        return Inertia::render('Admin/Users/Edit', [
+            'user' => $user->load('roles'),
+            'roles' => Role::all(),
+        ]);
     }
 
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required',
+            'password' => 'nullable|confirmed|min:6',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
-        $user->update($request->only('name', 'email'));
-        $user->syncRoles([$request->role]);
+        $data = $request->only('name', 'email');
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+        $user->update($data);
+        $user->roles()->sync([$request->role_id]);
 
-        return redirect()->back()->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->back()->with('success', 'User deleted.');
+        return back()->with('success', 'User deleted successfully.');
     }
 }

@@ -10,7 +10,7 @@ export default function Sidebar({ auth }) {
     { label: 'Projects', href: '/projects', icon: <Folder size={16} /> },
     { label: 'Leads', href: '/leads', icon: <Users size={16} /> },
     { label: 'Settings', href: '/settings', icon: <Settings size={16} /> },
-    { label: 'User Management', href: '/user_management', icon: <User size={16} />},
+    { label: 'User Management', href: route('users.index'), icon: <User size={16} /> },
 
   ];
 
