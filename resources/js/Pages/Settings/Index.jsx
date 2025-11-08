@@ -3,8 +3,11 @@ import { router, usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Settings() {
-  const { settings, flash } = usePage().props;
+  const { settings, flash, app} = usePage().props;
   const [form, setForm] = useState(settings);
+
+  const appName = app?.name;
+  const appTheme = app?.theme;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -36,31 +39,6 @@ export default function Settings() {
               className="border rounded p-2 w-full"
             />
           </div>
-
-          <div>
-            <label className="block text-sm font-medium">Timezone</label>
-            <input
-              name="timezone"
-              value={form.timezone}
-              onChange={handleChange}
-              className="border rounded p-2 w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Language</label>
-            <select
-              name="language"
-              value={form.language}
-              onChange={handleChange}
-              className="border rounded p-2 w-full"
-            >
-              <option>English</option>
-              <option>Hindi</option>
-              <option>French</option>
-            </select>
-          </div>
-
           <div>
             <label className="block text-sm font-medium">Theme</label>
             <select

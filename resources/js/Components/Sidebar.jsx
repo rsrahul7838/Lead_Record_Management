@@ -3,7 +3,8 @@ import { Link, usePage } from '@inertiajs/react';
 import { Home, Folder, Users, Settings, User } from 'lucide-react';
 
 export default function Sidebar({ auth }) {
-  const { url } = usePage();
+  const { url, props } = usePage();
+  const appName = props?.app?.name || 'ProjectManager'; // 
 
   const menu = [
     { label: 'Dashboard', href: '/dashboard', icon: <Home size={16} /> },
@@ -11,13 +12,13 @@ export default function Sidebar({ auth }) {
     { label: 'Leads', href: route('leads.index'), icon: <Users size={16} /> },
     { label: 'Settings', href: route('settings.index'), icon: <Settings size={16} /> },
     { label: 'User Management', href: route('users.index'), icon: <User size={16} /> },
-
   ];
 
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+      {/* ✅ Dynamic App Name */}
       <div className="px-6 py-4 text-xl font-bold border-b border-gray-200 dark:border-gray-700">
-        ProjectManager
+        {appName}
       </div>
 
       <nav className="p-4 space-y-1 flex-1">
@@ -34,7 +35,6 @@ export default function Sidebar({ auth }) {
           </Link>
         ))}
       </nav>
-      
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="text-sm text-gray-600 dark:text-gray-300">Signed in as</div>

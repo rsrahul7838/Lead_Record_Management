@@ -3,6 +3,8 @@ import { Head, usePage } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 
 export default function Dashboard({ stats }) {
+    usePage().props.app.name
+    usePage().props.app.theme
     return (
     <AuthenticatedLayout>
         <AppLayout>
