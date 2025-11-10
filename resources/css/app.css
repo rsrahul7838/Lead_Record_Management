@@ -5,3 +5,20 @@
 html {
   transition: background-color 0.3s, color 0.3s;
 }
+
+.rbc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.rbc-event {
+  transition: transform 0.1s ease;
+}
+.rbc-event:hover {
+  transform: scale(1.03);
+}
+
+.dark .rbc-event {
+  background: #2563eb !important;
+}

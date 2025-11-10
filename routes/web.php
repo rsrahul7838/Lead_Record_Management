@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\ClientController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -82,11 +83,17 @@ Route::middleware(['auth'])->group(function () {
 //     Route::resource('leads', LeadController::class);
 // });
 
+// Real E-state
+
 Route::middleware(['auth'])->group(function () {
     Route::resource('properties', PropertyController::class);
     Route::delete('/property-media/{media}', [PropertyController::class, 'destroyMedia'])->name('properties.media.destroy');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::resource('clients', ClientController::class)->except(['show']);
+    Route::get('clients/calendar', [ClientController::class, 'calendar'])->name('clients.calendar');
+});
 
 
 require __DIR__.'/auth.php';
