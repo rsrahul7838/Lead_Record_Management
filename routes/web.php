@@ -7,6 +7,7 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\PropertyController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -80,6 +81,11 @@ Route::middleware(['auth'])->group(function () {
 // Route::middleware(['auth'])->group(function () {
 //     Route::resource('leads', LeadController::class);
 // });
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('properties', PropertyController::class);
+    Route::delete('/property-media/{media}', [PropertyController::class, 'destroyMedia'])->name('properties.media.destroy');
+});
 
 
 
