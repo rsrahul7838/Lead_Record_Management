@@ -6,9 +6,11 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -32,9 +34,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
-// ✅ Protect all project routes (only authenticated users)
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Projects CRUD routes
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
@@ -43,7 +43,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 });
 
-// Only authenticated & verified users can access
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
@@ -58,7 +57,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tasks', TaskController::class)->except(['show']);
+});
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tasks/board', [TaskController::class, 'board'])->name('tasks.board');
+    Route::post('/tasks/update-status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+});
 
 
 Route::middleware('auth')->group(function () {
@@ -71,9 +77,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('leads', LeadController::class);
-});
+// Route::middleware(['auth'])->group(function () {
+//     Route::resource('leads', LeadController::class);
+// });
 
 
 
