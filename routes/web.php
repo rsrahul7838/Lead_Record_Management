@@ -10,6 +10,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -105,5 +106,12 @@ Route::middleware('auth')->group(function () {
         'follow-ups' => 'followUp'
     ]);
 });
+
+Route::middleware(['auth'])->group(function () {
+     Route::get('/payments/invoice/{id}', [PaymentController::class, 'invoice'])
+        ->name('payments.invoice');
+    Route::resource('payments', PaymentController::class);
+});
+
 
 require __DIR__ . '/auth.php';
