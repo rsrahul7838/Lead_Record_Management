@@ -10,11 +10,20 @@ class Lead extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'email', 'phone', 'status', 'notes', 'owner_id'
+        'name',
+        'email',
+        'phone',
+        'status',
+        'notes',
+        'owner_id'
     ];
 
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+    public function followups()
+    {
+        return $this->hasMany(\App\Models\FollowUp::class);
     }
 }

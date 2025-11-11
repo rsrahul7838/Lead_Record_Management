@@ -9,6 +9,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\FollowUpController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -49,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
     Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
+    Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
     Route::get('/leads/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
     Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
     Route::delete('/leads/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
@@ -95,5 +97,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('clients/calendar', [ClientController::class, 'calendar'])->name('clients.calendar');
 });
 
+Route::middleware('auth')->group(function () {
+    // ✅ Custom routes should go BEFORE resource
+    Route::get('/follow-ups/today', [FollowUpController::class, 'today'])->name('follow-ups.today');
 
-require __DIR__.'/auth.php';
+    Route::resource('follow-ups', FollowUpController::class)->parameters([
+        'follow-ups' => 'followUp'
+    ]);
+});
+
+require __DIR__ . '/auth.php';

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { Home, Folder, Users, Settings, User, Layout, ChevronDown, ChevronRight, Building2, Calendar as CalendarIcon } from "lucide-react";
+import { Home, Folder, Users, Settings, User, Layout, ChevronDown, ChevronRight, Building2, Calendar as CalendarIcon, PhoneCall } from "lucide-react";
 
 export default function Sidebar({ auth }) {
   const { url, props } = usePage();
@@ -29,6 +29,14 @@ export default function Sidebar({ auth }) {
                 { label: "Follow-Up Calendar", href: route("clients.calendar"), icon: <CalendarIcon size={14} /> },
            ],
     },
+
+    { label: 'Follow-ups', icon: <PhoneCall size={16} />, 
+        submenu: [
+              { label: 'All Follow-ups', href: route('follow-ups.index'), icon: <PhoneCall size={14} />  },
+              { label: 'Today\'s Follow-ups', href: route('follow-ups.today'), icon: <CalendarIcon size={14} /> },
+        ] 
+    },
+
     { label: "Settings", href: route("settings.index"), icon: <Settings size={16} /> },
     { label: "User Management", href: route("users.index"), icon: <User size={16} /> },
   ];

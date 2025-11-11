@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use Illuminate\Http\Request;
+use App\Models\FollowUp;
 use Inertia\Inertia;
 
 class LeadController extends Controller
@@ -38,6 +39,22 @@ class LeadController extends Controller
         Lead::create($data);
 
         return redirect()->route('leads.index')->with('success', 'Lead created successfully.');
+    }
+     // ✅ NEW — Lead details + follow-ups
+    public function show($id)
+    {
+        $lead = Lead::with('owner')->findOrFail($id);
+
+        // Fetch all follow-ups related to this lead
+        $followups = FollowUp::with('user')
+            ->where('lead_id', $id)
+            ->orderByDesc('followup_at')
+            ->get();
+
+        return Inertia::render('Leads/Show', [
+            'lead' => $lead,
+            'followups' => $followups,
+        ]);
     }
 
     public function edit(Lead $lead)

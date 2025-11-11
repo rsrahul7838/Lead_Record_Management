@@ -1,10 +1,11 @@
 import React from 'react';
-import { usePage, Head } from '@inertiajs/react';
+import { usePage, Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { CalendarDays } from 'lucide-react'; // optional icon for button
 
 export default function Dashboard() {
-  const { stats, leadStatusSummary, recentProjects, recentLeads } = usePage().props;
+  const { stats, leadStatusSummary, recentProjects, recentLeads, nextFollowUps = [] } = usePage().props;
 
   const COLORS = ['#60A5FA', '#FBBF24', '#34D399', '#F87171'];
 
@@ -52,6 +53,62 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
+        {/* === Today's Follow-Ups (Enhanced) === */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Today's Follow-Ups</h2>
+
+            {/* ✅ Professional button with icon */}
+            <Link
+              href={route('follow-ups.today')}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition"
+            >
+              <CalendarDays size={16} />
+              View All
+            </Link>
+          </div>
+
+          {nextFollowUps && nextFollowUps.length > 0 ? (
+            <ul className="space-y-3">
+              {nextFollowUps.map((f) => (
+                <li
+                  key={f.id}
+                  className="flex items-start justify-between bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 dark:border-gray-700 hover:shadow-sm transition"
+                >
+                  <div>
+                    <div className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                      {f.lead?.name ?? f.client?.name ?? '—'}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {f.lead?.email ?? f.client?.email ?? ''}
+                      {f.user?.name ? ` • Assigned to ${f.user.name}` : ''}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      {f.note ? f.note : <span className="italic text-gray-400">No note</span>}
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                      {f.followup_at
+                        ? new Date(f.followup_at).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '—'}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {f.reminder_type ?? ''}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500 italic">No follow-ups scheduled for today 🎉</p>
+          )}
+        </div>
+
         {/* === Recent Activities === */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RecentTable title="Recent Projects" data={recentProjects} />
@@ -85,7 +142,7 @@ function RecentTable({ title, data }) {
         </thead>
         <tbody>
           {data.map((item) => (
-            <tr key={item.id} className="border-b">
+            <tr key={item.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-900">
               <td className="p-2">{item.name}</td>
               <td className="p-2">{item.status}</td>
               <td className="p-2 text-gray-500">
