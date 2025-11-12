@@ -13,6 +13,7 @@ use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AgentController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -126,4 +127,13 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/agent/index', [AgentController::class, 'dashboard'])->name('agent.dashboard');
 });
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+    Route::get('/reports/export-pdf', [App\Http\Controllers\ReportController::class, 'exportPDF'])->name('reports.export.pdf');
+});
+
+
 require __DIR__ . '/auth.php';
