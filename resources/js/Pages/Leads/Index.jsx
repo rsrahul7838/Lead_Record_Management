@@ -1,24 +1,76 @@
 import React, { useState } from "react";
 import { Link, usePage, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Swal from "sweetalert2";
+import axios from "axios";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function Index() {
-    const { leads = [], flash = {} } = usePage().props;
+    // ✅ leads is now a paginator, so use leads.data
+    const { leads, flash = {}, users = [] } = usePage().props;
+    const [leadList, setLeadList] = useState(leads.data || []);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
 
+    // ✅ Delete
     const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete this lead?")) {
-            router.delete(`/leads/${id}`);
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This lead will be permanently deleted!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(`/leads/${id}`, {
+                    onSuccess: () =>
+                        Swal.fire(
+                            "Deleted!",
+                            "Lead removed successfully.",
+                            "success"
+                        ),
+                });
+            }
+        });
+    };
+
+    // ✅ Assign Agent (from edit or modal)
+    const handleAssign = async (leadId, agentId) => {
+        try {
+            const response = await axios.put(`/leads/${leadId}/assign`, {
+                assigned_to: agentId,
+            });
+
+            if (response.data.success) {
+                const updatedLead = response.data.lead;
+
+                const updatedList = leadList.map((lead) =>
+                    lead.id === leadId
+                        ? {
+                              ...lead,
+                              assigned_to: updatedLead.assigned_to,
+                              assignedTo: updatedLead.assignedTo,
+                          }
+                        : lead
+                );
+
+                setLeadList(updatedList);
+                Swal.fire(
+                    "Updated!",
+                    "Agent assigned successfully.",
+                    "success"
+                );
+            }
+        } catch (err) {
+            Swal.fire("Error!", "Failed to assign agent.", "error");
         }
     };
 
-    // Filtered data based on search & status
-    const filteredLeads = leads.filter((lead) => {
+    // ✅ Filter leads by name/email/status
+    const filteredLeads = leadList.filter((lead) => {
         const matchesSearch =
-            lead.name.toLowerCase().includes(search.toLowerCase()) ||
-            (lead.email &&
-                lead.email.toLowerCase().includes(search.toLowerCase()));
+            lead.name?.toLowerCase().includes(search.toLowerCase()) ||
+            lead.email?.toLowerCase().includes(search.toLowerCase());
         const matchesStatus =
             statusFilter === "All" || lead.status === statusFilter;
         return matchesSearch && matchesStatus;
@@ -26,64 +78,65 @@ export default function Index() {
 
     return (
         <AuthenticatedLayout>
-            <div className="p-6 max-w-6xl mx-auto">
-                {/* Header Section */}
+            <div className="max-w-7xl mx-auto p-6">
+                {/* === Header === */}
                 <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-semibold text-gray-800">
+                    <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">
                         Leads Management
                     </h1>
                     <Link
                         href="/leads/create"
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all duration-200 shadow"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg shadow transition"
                     >
                         + New Lead
                     </Link>
                 </div>
 
-                {/* Flash Message */}
+                {/* === Flash Message === */}
                 {flash.success && (
-                    <div className="bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded mb-5 shadow-sm">
-                        {flash.success}
+                    <div className="bg-green-50 border border-green-300 text-green-800 p-3 rounded-lg mb-4 shadow-sm">
+                        ✅ {flash.success}
                     </div>
                 )}
 
-                {/* Search + Filter Bar */}
-                <div className="bg-white p-4 mb-5 rounded-lg shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-3 w-full sm:w-2/3">
-                        <input
-                            type="text"
-                            placeholder="Search by name or email..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                        />
-                    </div>
+                {/* === Filters === */}
+                <div className="bg-white dark:bg-gray-800 p-4 mb-5 rounded-lg shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <input
+                        type="text"
+                        placeholder="🔍 Search by name or email..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="border rounded-lg px-4 py-2 w-full sm:w-2/3 focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
+                    />
 
-                    <div className="flex items-center gap-3 w-full sm:w-1/3">
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                        >
-                            <option value="All">All Statuses</option>
-                            <option value="New">New</option>
-                            <option value="Contacted">Contacted</option>
-                            <option value="Qualified">Qualified</option>
-                            <option value="Lost">Lost</option>
-                        </select>
-                    </div>
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="border rounded-lg px-4 py-2 w-full sm:w-1/3 focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
+                    >
+                        <option value="All">All Statuses</option>
+                        <option value="New">New</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="Qualified">Qualified</option>
+                        <option value="Lost">Lost</option>
+                    </select>
                 </div>
 
-                {/* Leads Table */}
-                <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                    <table className="w-full border-collapse">
-                        <thead className="bg-gray-100 text-gray-700 uppercase text-sm">
+                {/* === Leads Table === */}
+                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                    <table className="w-full text-sm text-gray-700 dark:text-gray-300">
+                        <thead className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 uppercase text-xs font-semibold">
                             <tr>
                                 <th className="py-3 px-4 text-left">Name</th>
                                 <th className="py-3 px-4 text-left">Email</th>
                                 <th className="py-3 px-4 text-left">Phone</th>
                                 <th className="py-3 px-4 text-left">Status</th>
-                                <th className="py-3 px-4 text-left">Actions</th>
+                                <th className="py-3 px-4 text-left">
+                                    Assigned Agent
+                                </th>
+                                <th className="py-3 px-4 text-center">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -91,29 +144,29 @@ export default function Index() {
                                 filteredLeads.map((lead, index) => (
                                     <tr
                                         key={lead.id}
-                                        className={`border-t hover:bg-gray-50 transition-colors duration-150 ${
+                                        className={`border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${
                                             index % 2 === 0
-                                                ? "bg-white"
-                                                : "bg-gray-50"
+                                                ? "bg-white dark:bg-gray-900"
+                                                : "bg-gray-50 dark:bg-gray-800"
                                         }`}
                                     >
-                                        <td className="py-3 px-4 font-medium text-gray-900">
+                                        <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
                                             {lead.name}
                                         </td>
-                                        <td className="py-3 px-4 text-gray-700">
-                                            {lead.email}
+                                        <td className="py-3 px-4">
+                                            {lead.email || "—"}
                                         </td>
-                                        <td className="py-3 px-4 text-gray-700">
-                                            {lead.phone}
+                                        <td className="py-3 px-4">
+                                            {lead.phone || "—"}
                                         </td>
-                                        <td>
+                                        <td className="py-3 px-4">
                                             <span
-                                                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                                     lead.status === "New"
                                                         ? "bg-blue-100 text-blue-700"
                                                         : lead.status ===
                                                           "Contacted"
-                                                        ? "bg-yellow-100 text-yellow-800"
+                                                        ? "bg-yellow-100 text-yellow-700"
                                                         : lead.status ===
                                                           "Qualified"
                                                         ? "bg-green-100 text-green-700"
@@ -123,42 +176,46 @@ export default function Index() {
                                                 {lead.status}
                                             </span>
                                         </td>
-                                        <td className="py-3 px-4">
-                                            <div className="flex items-center gap-3">
-                                                <Link
-                                                    href={route(
-                                                        "leads.show",
-                                                        lead.id
-                                                    )}
-                                                    className="text-blue-600 hover:underline mr-3"
-                                                >
-                                                    View
-                                                </Link>
 
-                                                <Link
-                                                    href={`/leads/${lead.id}/edit`}
-                                                    className="text-blue-600 hover:text-blue-800 font-medium"
-                                                >
-                                                    Edit
-                                                </Link>
+                                        {/* ✅ Assigned Agent — show name if exists */}
+                                        <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-200">
+                                            {lead.assignedTo?.name ||
+                                                "— Unassigned —"}
+                                        </td>
 
-                                                <button
-                                                    onClick={() =>
-                                                        handleDelete(lead.id)
-                                                    }
-                                                    className="text-red-600 hover:text-red-800 font-medium"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
+                                        {/* === Actions === */}
+                                        <td className="py-3 px-4 text-center space-x-3">
+                                            <Link
+                                                href={route(
+                                                    "leads.show",
+                                                    lead.id
+                                                )}
+                                                className="text-blue-600 hover:underline font-medium"
+                                            >
+                                                View
+                                            </Link>
+                                            <Link
+                                                href={`/leads/${lead.id}/edit`}
+                                                className="text-indigo-600 hover:underline font-medium"
+                                            >
+                                                Edit
+                                            </Link>
+                                            <button
+                                                onClick={() =>
+                                                    handleDelete(lead.id)
+                                                }
+                                                className="text-red-600 hover:underline font-medium"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan="5"
-                                        className="py-6 text-center text-gray-500"
+                                        colSpan="6"
+                                        className="py-6 text-center text-gray-500 dark:text-gray-400 italic"
                                     >
                                         No leads found.
                                     </td>

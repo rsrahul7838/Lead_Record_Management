@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { Home, Folder, Users, Settings, User, Layout, ChevronDown, ChevronRight, Building2, Calendar as CalendarIcon, PhoneCall, CreditCard } from "lucide-react";
+import { Home, Folder, Users, Settings, User, Layout, ChevronDown, ChevronRight, Building2, Calendar as CalendarIcon, PhoneCall, CreditCard, Shield } from "lucide-react";
 
 export default function Sidebar({ auth }) {
   const { url, props } = usePage();
@@ -36,8 +36,10 @@ export default function Sidebar({ auth }) {
         ] 
     },
     { label: 'Payments', href: route('payments.index'), icon: <CreditCard size={16} /> },
+    { label: 'Agent Dashboard', href: route('agent.dashboard'), icon: <Users size={16} /> },
     { label: "Settings", href: route("settings.index"), icon: <Settings size={16} /> },
     { label: "User Management", href: route("users.index"), icon: <User size={16} /> },
+    { label: 'Roles & Permissions', href: route('roles.index'), icon: <Shield size={16} /> },
   ];
 
   return (

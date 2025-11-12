@@ -11,6 +11,8 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\AgentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,6 +31,11 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
+    Route::resource('roles', RoleController::class);
+});
+
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
@@ -37,6 +44,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
@@ -51,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
     Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
+    Route::put('/leads/{lead}/assign', [LeadController::class, 'assign'])->name('leads.assign');
     Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
     Route::get('/leads/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
     Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
@@ -108,10 +117,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-     Route::get('/payments/invoice/{id}', [PaymentController::class, 'invoice'])
+    Route::get('/payments/invoice/{id}', [PaymentController::class, 'invoice'])
         ->name('payments.invoice');
     Route::resource('payments', PaymentController::class);
 });
 
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/agent/index', [AgentController::class, 'dashboard'])->name('agent.dashboard');
+});
 require __DIR__ . '/auth.php';

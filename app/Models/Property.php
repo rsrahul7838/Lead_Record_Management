@@ -28,4 +28,10 @@ class Property extends Model
     {
         return $this->hasMany(PropertyMedia::class);
     }
+     // 🔗 Leads connected to this property
+    public function leads()
+    {
+        return $this->hasMany(Lead::class, 'project_id');
+    }
+    
 }

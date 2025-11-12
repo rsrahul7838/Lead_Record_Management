@@ -15,15 +15,27 @@ class Lead extends Model
         'phone',
         'status',
         'notes',
-        'owner_id'
+        'owner_id',
+        'assigned_to',
+        'project_id',
     ];
 
     public function owner()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        // return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsTo(User::class, 'owner_id', 'id');
     }
     public function followups()
     {
         return $this->hasMany(\App\Models\FollowUp::class);
+    }
+    public function assignedTo()
+    {
+        return $this->belongsTo(User::class, 'assigned_to', 'id');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(\App\Models\Property::class, 'project_id');
     }
 }

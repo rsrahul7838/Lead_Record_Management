@@ -29,6 +29,11 @@ class UserController extends Controller
             });
         }
 
+        if (!auth()->user()->can('edit leads')) {
+            abort(403, 'Unauthorized');
+        }
+
+
         $users = $query->get();
 
         return inertia('Admin/Users/Index', [
