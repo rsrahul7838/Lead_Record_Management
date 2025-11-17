@@ -4,7 +4,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Create() {
     // ✅ Receive list of users (agents) from backend
-    const { users = [] } = usePage().props;
+    const { users = [], projects = [] } = usePage().props;
 
     // ✅ Form state
     const [form, setForm] = useState({
@@ -13,7 +13,8 @@ export default function Create() {
         phone: "",
         status: "New",
         notes: "",
-        assigned_to: "", // NEW: selected agent id
+        assigned_to: "",
+        project_id: "",
     });
 
     // ✅ Update field on input change
@@ -107,6 +108,24 @@ export default function Create() {
                             {users.map((user) => (
                                 <option key={user.id} value={user.id}>
                                     {user.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">
+                            Project
+                        </label>
+                        <select
+                            name="project_id"
+                            value={form.project_id}
+                            onChange={handleChange}
+                            className="border p-2 w-full rounded"
+                        >
+                            <option value="">Select Project</option>
+                            {projects.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name}
                                 </option>
                             ))}
                         </select>

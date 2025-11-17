@@ -134,6 +134,7 @@ export default function Index() {
                                 <th className="py-3 px-4 text-left">
                                     Assigned Agent
                                 </th>
+                                <th className="py-3 px-4 text-left">Project</th>
                                 <th className="py-3 px-4 text-center">
                                     Actions
                                 </th>
@@ -181,6 +182,10 @@ export default function Index() {
                                         <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-200">
                                             {lead.assignedTo?.name ||
                                                 "— Unassigned —"}
+                                        </td>
+                                        <td className="py-3 px-4 font-medium">
+                                            {lead.project?.name ||
+                                                "— No Project —"}
                                         </td>
 
                                         {/* === Actions === */}

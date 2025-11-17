@@ -6,7 +6,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function Edit() {
     // ✅ Get lead and list of users (agents) from backend
-    const { lead, users = [] } = usePage().props;
+    const { lead, users = [], projects = [] } = usePage().props;
 
     // ✅ Initialize form with existing lead data
     const [form, setForm] = useState({
@@ -15,7 +15,8 @@ export default function Edit() {
         phone: lead.phone || "",
         status: lead.status || "New",
         notes: lead.notes || "",
-        assigned_to: lead.assigned_to || "", // NEW field for agent
+        assigned_to: lead.assigned_to || "",
+        project_id: lead.project_id || "",
     });
 
     // ✅ Handle input change
@@ -116,6 +117,24 @@ export default function Edit() {
                             {users.map((user) => (
                                 <option key={user.id} value={user.id}>
                                     {user.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">
+                            Project
+                        </label>
+                        <select
+                            name="project_id"
+                            value={form.project_id}
+                            onChange={handleChange}
+                            className="border p-2 w-full rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                        >
+                            <option value="">Select Project</option>
+                            {projects.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name}
                                 </option>
                             ))}
                         </select>
