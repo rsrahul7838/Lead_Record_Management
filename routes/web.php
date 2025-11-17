@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\MessageController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,6 +29,8 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+Broadcast::routes(['middleware' => ['auth']]);
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -134,6 +138,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
     Route::get('/reports/export-pdf', [App\Http\Controllers\ReportController::class, 'exportPDF'])->name('reports.export.pdf');
 });
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/leads/{lead}/messages', [MessageController::class,'index'])
+         ->name('messages.index');
+
+    Route::post('/leads/{lead}/messages', [MessageController::class,'store'])
+         ->name('messages.store');
+
+});
+
 
 
 require __DIR__ . '/auth.php';
